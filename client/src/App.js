@@ -125,6 +125,16 @@ class App extends React.Component {
         );
     }
 
+    renderLoader() {
+        return (
+            <div className="text-center">
+                <div class="spinner-grow text-info text-center mx-4" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>   
+        )
+    }
+
     render() {
         const dayData = this.splitDays(this.state.entries);
         const days = dayData.map((day, index) => {
@@ -139,9 +149,9 @@ class App extends React.Component {
                     <IniniteScroll dataLength={days.length}
                         next={this.fetchMoreData}
                         hasMore={this.state.hasMore}
-                        loader={<h4>Loading...</h4>}
+                        loader={this.renderLoader()}
                         endMessage={
-                            <p style={{ textAlign: "center" }}>
+                            <p className="text-center">
                                 <b>Yay! You have seen it all</b>
                             </p>
                         }>
