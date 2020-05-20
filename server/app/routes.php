@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use App\Application\Actions\Entry\ViewEntryAction;
+use App\Application\Actions\Entry\GetNumOfEntryAction;
 use App\Application\Actions\Entry\ViewLimitedEntryAction;
 use App\Application\Actions\Entry\PostEntryAction;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,6 +23,7 @@ return function (App $app) {
 
     $app->group('/entries', function (Group $group) {
         $group->get('', ViewEntryAction::class);
+        $group->get('/count', GetNumOfEntryAction::class);
         $group->post('/add', PostEntryAction::class);
         $group->get('/{offset}/{limit}', ViewLimitedEntryAction::class);
     });
