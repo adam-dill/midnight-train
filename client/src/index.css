@@ -16,18 +16,27 @@ code {
   TIME OF DAY FROM Suncalc PACKAGE https://www.npmjs.com/package/suncalc
 */
 
-.list-group-item.nadir { background-color: black; color: white; }
-.list-group-item.nightEnd { background-color: black; color: white; }
-.list-group-item.nauticalDawn { background-color: gray; }
-.list-group-item.dawn { background-color: gray; }
-.list-group-item.sunrise { background-color: skyblue; }
-.list-group-item.sunriseEnd { background-color: skyblue; }
-.list-group-item.goldenHourEnd { background-color: deepskyblue; }
-.list-group-item.solarNoon { background-color: deepskyblue; }
-.list-group-item.goldenHour { background-color: deepskyblue; }
-.list-group-item.sunsetStart { background-color: skyblue; }
-.list-group-item.sunset { background-color: gray; }
-.list-group-item.dusk { background-color: gray; }
-.list-group-item.nauticalDusk { background-color: gray; }
-.list-group-item.night { background-color: black; color: white; }
+.list-group-item.nadir,
+.list-group-item.nightEnd,
+.list-group-item.nauticalDawn,
+.list-group-item.dawn,
+.list-group-item.sunrise { background-color: midnightblue; color: white; }
 
+.list-group-item.sunriseEnd,
+.list-group-item.goldenHourEnd,
+.list-group-item.solarNoon,
+.list-group-item.goldenHour,
+.list-group-item.sunsetStart { background-color: lightskyblue; }
+
+.list-group-item.sunset,
+.list-group-item.dusk,
+.list-group-item.nauticalDusk,
+.list-group-item.night { background-color: midnightblue; color: white; }
+
+
+
+
+.card-header {
+  font-weight: 700;
+  font-size: 1.5rem;
+}

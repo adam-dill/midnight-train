@@ -128,8 +128,8 @@ class App extends React.Component {
     renderLoader() {
         return (
             <div className="text-center">
-                <div class="spinner-grow text-info text-center mx-4" role="status">
-                    <span class="sr-only">Loading...</span>
+                <div className="spinner-grow text-info text-center mx-4" role="status">
+                    <span className="sr-only">Loading...</span>
                 </div>
             </div>   
         )
