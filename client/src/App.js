@@ -48,7 +48,7 @@ class App extends React.Component {
     }
 
     processEntry(entry) {
-        const date = new Date(entry.time);
+        const date = new Date(entry.time.replace(/-/g, '/'));
         const day = date.toDateString();
         const time = this.formatTime(date);
         return {
