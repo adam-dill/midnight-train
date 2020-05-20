@@ -1,25 +1,49 @@
 import React from 'react';
 import last from 'lodash-es/last';
 import Suncalc from 'suncalc';
+import IniniteScroll from 'react-infinite-scroll-component';
 
 // TODO: make values set from the POST.
 const LAT  = 43.038902;
 const LONG = -87.906471;
+const REQUEST_LEN = 50;
 
 class App extends React.Component {
+    currentRequest=0;
+    totalRecords=0;
     constructor(props) {
         super(props);
         this.state = {
-            entries: []
+            entries: [],
+            hasMore: true,
         }
+        this.fetchMoreData = this.fetchMoreData.bind(this);
     }
 
     componentDidMount() {
-        fetch('http://www.midnighttrain.adamdill.com/entries')
+        fetch('http://www.midnighttrain.adamdill.com/entries/count')
             .then(response => response.json())
             .then(result => {
+                const {data} = result;
+                this.totalRecords = parseInt(data);
+                this.fetchMoreData();
+            });
+    }
+
+    fetchMoreData() {
+        const offset = REQUEST_LEN * this.currentRequest;
+        fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
+            .then(response => response.json())
+            .then(result => {
+                this.currentRequest++;
                 const entries = result.data.map(value => this.processEntry(value));
-                this.setState({entries});
+                const hasMore = (offset + REQUEST_LEN) < this.totalRecords;
+                this.setState(previousState => {
+                    return { 
+                        entries: previousState.entries.concat(entries),
+                        hasMore
+                    };
+                });
             });
     }
 
@@ -83,12 +107,12 @@ class App extends React.Component {
     renderDay(dayObject, index) {
         const entries = dayObject.entries.map((entry, index) => this.renderEntry(entry, index));
         return(
-            <div key={index} className="card border-dark mb-3">
+            <li key={index} className="card border-dark mb-3">
                 <div className="card-header">{dayObject.day}</div>
                 <div className="card-body text-dark">
                     <ul className="list-group">{entries}</ul>
                 </div>
-            </div>
+            </li>
         );
     }
 
@@ -105,14 +129,24 @@ class App extends React.Component {
         const dayData = this.splitDays(this.state.entries);
         const days = dayData.map((day, index) => {
             return this.renderDay(day, index);
-        })
+        });
         return (
             <>
                 <header className="container">
                     <h1>Midnight Train</h1>
                 </header>
                 <main className="container">
-                    <ul className="list-group">{days}</ul>
+                    <IniniteScroll dataLength={days.length}
+                        next={this.fetchMoreData}
+                        hasMore={this.state.hasMore}
+                        loader={<h4>Loading...</h4>}
+                        endMessage={
+                            <p style={{ textAlign: "center" }}>
+                                <b>Yay! You have seen it all</b>
+                            </p>
+                        }>
+                        <ul className="list-group">{days}</ul>
+                    </IniniteScroll>
                 </main>
             </>
         );
