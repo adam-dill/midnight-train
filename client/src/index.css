@@ -11,3 +11,23 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/*
+  TIME OF DAY FROM Suncalc PACKAGE https://www.npmjs.com/package/suncalc
+*/
+
+.list-group-item.nadir { background-color: black; color: white; }
+.list-group-item.nightEnd { background-color: black; color: white; }
+.list-group-item.nauticalDawn { background-color: gray; }
+.list-group-item.dawn { background-color: gray; }
+.list-group-item.sunrise { background-color: skyblue; }
+.list-group-item.sunriseEnd { background-color: skyblue; }
+.list-group-item.goldenHourEnd { background-color: deepskyblue; }
+.list-group-item.solarNoon { background-color: deepskyblue; }
+.list-group-item.goldenHour { background-color: deepskyblue; }
+.list-group-item.sunsetStart { background-color: skyblue; }
+.list-group-item.sunset { background-color: gray; }
+.list-group-item.dusk { background-color: gray; }
+.list-group-item.nauticalDusk { background-color: gray; }
+.list-group-item.night { background-color: black; color: white; }
+
