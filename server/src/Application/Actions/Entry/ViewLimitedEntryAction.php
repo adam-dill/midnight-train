@@ -5,15 +5,17 @@ namespace App\Application\Actions\Entry;
 
 use Psr\Http\Message\ResponseInterface as Response;
 
-class ViewEntryAction extends EntryAction
+class ViewLimitedEntryAction extends EntryAction
 {
     /**
      * {@inheritdoc}
      */
     protected function action(): Response
     {
-        $result = $this->db->getEntries();
-        $this->logger->info("Viewing all entries.");
+        $offset = $this->resolveArg('offset');
+        $limit = $this->resolveArg('limit');
+        $result = $this->db->getEntries($offset, $limit);
+        $this->logger->info("Viewing limited entries.");
         
         return $this->respondWithData($result);
     }
