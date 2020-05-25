@@ -8,13 +8,17 @@
 #include <curl/curl.h>
 #include <time.h>
 #include <unistd.h>
+#include <wiringPi.h>
 
-#define MAX_SCALE 2000;
-#define MIN_SCALE 200;
+#define sensorPin  0
+#define errorPin   1
+#define successPin 3
 
+#define MIN_DURATION 1000
+
+CURLcode postData(CURL *curl, time_t startTime);
 void createPostData(char *postData, time_t time, int duration);
 int checkInput(void);
-int scale = MAX_SCALE;
 
 int main(void)
 {
@@ -25,42 +29,63 @@ int main(void)
   time_t t;
   srand((unsigned) time(&t));
   
+  wiringPiSetup();	
+	pinMode(successPin, OUTPUT);
+  pinMode(errorPin, OUTPUT);
+	pinMode(sensorPin, INPUT);
+  
+  digitalWrite(errorPin, LOW);
+  digitalWrite(successPin, LOW);
+
+	pullUpDnControl(sensorPin, PUD_UP);
+  
   while (1)
   {
     if (checkInput())
     {
-      printf("Got input.\n");
-      if (startTime && curl)
+      startTime = time(NULL);
+    }
+    else if (startTime)
+    {
+      curl = curl_easy_init();
+      if (curl)
       {
-        time_t newTime = time(NULL);
-        double deltaTime = difftime(newTime, startTime) * 1000;
-        char postData[256];
-        createPostData(postData, startTime, deltaTime);
-        startTime = 0;
-        scale = MAX_SCALE;
-        printf("Data posted. %f\n", deltaTime);
-        
-        curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/entries/add");
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
-
-        res = curl_easy_perform(curl);
+        res = postData(curl, startTime);
         if(res != CURLE_OK)
+        {
           fprintf(stderr, "curl_easy_perform() failed: %s\n",
                   curl_easy_strerror(res));
+          digitalWrite(errorPin, HIGH);
+        }
 
         curl_easy_cleanup(curl);
       }
-      else
-      {
-        startTime = time(NULL);
-        curl = curl_easy_init();
-        printf("\nHeard a train...\n");
-      }
+      startTime = 0;
     }
-    sleep(1);
+    //sleep(1);
   }
   return 0;
+}
+
+CURLcode postData(CURL *curl, time_t startTime)
+{
+  time_t newTime = time(NULL);
+  int deltaTime = difftime(newTime, startTime) * 1000;
+  
+  if (deltaTime < 1000)
+  {
+    printf("duration was under %d seconds. No post.\n", MIN_DURATION/1000);
+    return CURLE_OK;
+  }
+  char postData[256];
+  createPostData(postData, startTime, deltaTime);
+  printf("Data posted. %d\n", deltaTime);
+  
+  curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/entries/add");
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
+
+  return curl_easy_perform(curl);
 }
 
 void createPostData(char *postData, time_t time, int duration)
@@ -80,12 +105,12 @@ void createPostData(char *postData, time_t time, int duration)
 
 int checkInput(void)
 {
-  int r = rand() % scale;
-  int magicNumber = 3;
-  printf("r = %d\n", r);
-  if (r == magicNumber)
-  {
-    scale = MIN_SCALE;
+  if(digitalRead(sensorPin) == LOW){
+    digitalWrite(successPin, HIGH);
+    return 1;
   }
-  return r == magicNumber;
+  else {
+    digitalWrite(successPin, LOW);
+    return 0;
+  }
 }
