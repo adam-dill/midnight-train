@@ -20,20 +20,20 @@ CURLcode postData(CURL *curl, time_t startTime);
 void createPostData(char *postData, time_t time, int duration);
 int checkInput(void);
 
+time_t inputTime = 0;
+
 int main(void)
 {
   CURL *curl;
   CURLcode res;
-  time_t startTime;
-  
-  time_t t;
-  srand((unsigned) time(&t));
+  time_t startTime = 0;
   
   wiringPiSetup();	
 	pinMode(successPin, OUTPUT);
   pinMode(errorPin, OUTPUT);
 	pinMode(sensorPin, INPUT);
   
+  digitalWrite(sensorPin, LOW);
   digitalWrite(errorPin, LOW);
   digitalWrite(successPin, LOW);
 
@@ -41,11 +41,13 @@ int main(void)
   
   while (1)
   {
-    if (checkInput())
+    int input = checkInput();
+    if (input && startTime == 0)
     {
       startTime = time(NULL);
+      printf("new sound detected.\n");
     }
-    else if (startTime)
+    else if (!input && startTime > 0)
     {
       curl = curl_easy_init();
       if (curl)
@@ -72,14 +74,12 @@ CURLcode postData(CURL *curl, time_t startTime)
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   
-  if (deltaTime < 1000)
+  if (deltaTime < 20000)
   {
-    printf("duration was under %d seconds. No post.\n", MIN_DURATION/1000);
     return CURLE_OK;
   }
   char postData[256];
   createPostData(postData, startTime, deltaTime);
-  printf("Data posted. %d\n", deltaTime);
   
   curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/entries/add");
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
@@ -105,11 +105,24 @@ void createPostData(char *postData, time_t time, int duration)
 
 int checkInput(void)
 {
-  if(digitalRead(sensorPin) == LOW){
+  time_t now = time(NULL);
+    
+  int input = digitalRead(sensorPin) == LOW;
+  if (input)
+  {
+    inputTime = now + 3;
+  }
+  
+  if (inputTime != 0 && inputTime > now)
+  {
+    printf("inputTime: %ld\n", inputTime);
+    printf("now: %ld\n", now);
     digitalWrite(successPin, HIGH);
     return 1;
   }
-  else {
+  else 
+  {
+    inputTime = 0;
     digitalWrite(successPin, LOW);
     return 0;
   }
