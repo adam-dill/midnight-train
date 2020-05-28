@@ -15,12 +15,16 @@
 #define successPin 3
 
 #define MIN_DURATION 1000
+#define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
 void createPostData(char *postData, time_t time, int duration);
 int checkInput(void);
+void postStatus(void);
+float getCpuTemperature(void);
 
 time_t inputTime = 0;
+time_t lastStatusUpdate = 0;
 
 int main(void)
 {
@@ -41,6 +45,12 @@ int main(void)
   
   while (1)
   {
+    time_t now = time(NULL);
+    if (now > lastStatusUpdate + STATUS_FREQUENCY)
+    {
+      postStatus();
+      lastStatusUpdate = now;
+    }
     int input = checkInput();
     if (input && startTime == 0)
     {
@@ -64,7 +74,6 @@ int main(void)
       }
       startTime = 0;
     }
-    //sleep(1);
   }
   return 0;
 }
@@ -126,4 +135,39 @@ int checkInput(void)
     digitalWrite(successPin, LOW);
     return 0;
   }
+}
+
+void postStatus()
+{
+  CURL *curl;
+  curl = curl_easy_init();
+  if (curl)
+  {
+    double temperature = getCpuTemperature();
+    char temperatureStr[10];
+    sprintf(temperatureStr, "%f", temperature);
+    char postData[256];
+    strcpy(postData, "{\"temperature\" : \"");
+    strcat(postData, temperatureStr);
+    strcat(postData, "\" }");
+    
+    curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/status/temperature");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
+    curl_easy_perform(curl);
+    curl_easy_cleanup(curl);
+  }
+}
+
+float getCpuTemperature()
+{
+  float systemp, millideg;
+  FILE *thermal;
+
+  thermal = fopen("/sys/class/thermal/thermal_zone0/temp","r");
+  fscanf(thermal,"%f",&millideg);
+  fclose(thermal);
+  systemp = millideg / 1000;
+
+  return systemp;
 }
