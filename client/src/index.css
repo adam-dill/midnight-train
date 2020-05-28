@@ -52,3 +52,13 @@ code {
   font-weight: 700;
   font-size: 1.5rem;
 }
+
+.pointer {
+  cursor: pointer;
+}
+
+@media(max-width: 992px) {
+  h1 {
+    font-size: 2em !important;
+  }
+}
