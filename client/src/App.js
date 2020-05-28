@@ -16,7 +16,9 @@ class App extends React.Component {
         this.state = {
             entries: [],
             hasMore: true,
+            status: {}
         }
+        this.updateStatus = this.updateStatus.bind(this);
         this.fetchMoreData = this.fetchMoreData.bind(this);
     }
 
@@ -27,6 +29,21 @@ class App extends React.Component {
                 const {data} = result;
                 this.totalRecords = parseInt(data);
                 this.fetchMoreData();
+            });
+        this.updateStatus();
+        setInterval(this.updateStatus, 1*(60*1000));
+    }
+
+    updateStatus() {
+        fetch('http://www.midnighttrain.adamdill.com/status/')
+            .then(response => response.json())
+            .then(result => {
+                const {data} = result;
+                if (data) {
+                    const newStatus = {};
+                    data.forEach(item => newStatus[item.key] = item.value);
+                    this.setState({status: newStatus});
+                }
             });
     }
 
@@ -127,11 +144,45 @@ class App extends React.Component {
 
     renderLoader() {
         return (
-            <div className="text-center">
+            <div className="d-flex justify-content-center loading-container">
+                <div className="spinner-grow text-info text-center mx-4" role="status"></div>
                 <div className="spinner-grow text-info text-center mx-4" role="status">
                     <span className="sr-only">Loading...</span>
                 </div>
+                <div className="spinner-grow text-info text-center mx-4" role="status"></div>
             </div>   
+        )
+    }
+
+    celsiusToFahrenheit(c) {
+        return (c * 9/5) + 32;
+    }
+
+    formatDegree(c) {
+        if (!c) return null;
+
+        return `${this.celsiusToFahrenheit(c)}&deg;F`;
+    }
+
+    isOnline(lastTime, currentTime) {
+        let a = new Date(lastTime);
+        a.setMinutes(a.getMinutes() + 7);
+        const b = new Date(currentTime);
+        return a > b;
+    }
+
+    renderStatus() {
+        const {temperature, lastUpdate, CURRENT_TIMESTAMP} = this.state.status;
+        const online = this.isOnline(lastUpdate, CURRENT_TIMESTAMP);
+        const onlineText = online ? 'online' : 'offline';
+        const onlineStyle = online ? 'badge-success' : 'badge-danger';
+        const temperatureDisplay = (online) ? this.formatDegree(temperature) : '---'
+
+        return (
+            <>
+                <span dangerouslySetInnerHTML={{__html:temperatureDisplay}} />
+                <span className={`badge ${onlineStyle} ml-2 p-2 text-uppercase`}>{onlineText}</span>
+            </>
         )
     }
 
@@ -140,10 +191,12 @@ class App extends React.Component {
         const days = dayData.map((day, index) => {
             return this.renderDay(day, index);
         });
+        
         return (
             <>
-                <header className="container">
-                    <h1>Midnight Train</h1>
+                <header className="container d-flex justify-content-between">
+                    <h1 className="d-inline-block">Midnight Train</h1>
+                    <div className="align-self-center">{this.renderStatus()}</div>
                 </header>
                 <main className="container">
                     <IniniteScroll dataLength={days.length}

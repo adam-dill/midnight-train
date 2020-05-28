@@ -12,6 +12,18 @@ code {
     monospace;
 }
 
+.loading-container>div:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-container>div:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.loading-container>div:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
 /*
   TIME OF DAY FROM Suncalc PACKAGE https://www.npmjs.com/package/suncalc
 */
