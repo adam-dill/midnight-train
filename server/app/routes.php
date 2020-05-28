@@ -5,6 +5,8 @@ use App\Application\Actions\Entry\ViewEntryAction;
 use App\Application\Actions\Entry\GetNumOfEntryAction;
 use App\Application\Actions\Entry\ViewLimitedEntryAction;
 use App\Application\Actions\Entry\PostEntryAction;
+use App\Application\Actions\Entry\PostTemperatureAction;
+use App\Application\Actions\Entry\ViewStatusAction;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -26,5 +28,10 @@ return function (App $app) {
         $group->get('/count', GetNumOfEntryAction::class);
         $group->post('/add', PostEntryAction::class);
         $group->get('/{offset}/{limit}', ViewLimitedEntryAction::class);
+    });
+
+    $app->group('/status', function (Group $group) {
+        $group->get('/', ViewStatusAction::class);
+        $group->post('/temperature', PostTemperatureAction::class);
     });
 };
