@@ -2,6 +2,7 @@ import React from 'react';
 import last from 'lodash-es/last';
 import Suncalc from 'suncalc';
 import IniniteScroll from 'react-infinite-scroll-component';
+import moment from 'moment';
 
 // TODO: make values set from the POST.
 const LAT  = 43.038902;
@@ -16,10 +17,12 @@ class App extends React.Component {
         this.state = {
             entries: [],
             hasMore: true,
-            status: {}
+            status: {},
+            temperatureType: 'c'
         }
         this.updateStatus = this.updateStatus.bind(this);
         this.fetchMoreData = this.fetchMoreData.bind(this);
+        this.handleTemperatureClick = this.handleTemperatureClick.bind(this);
     }
 
     componentDidMount() {
@@ -161,14 +164,21 @@ class App extends React.Component {
     formatDegree(c) {
         if (!c) return null;
 
-        return `${this.celsiusToFahrenheit(c)}&deg;F`;
+        const modifier = this.state.temperatureType === 'f'
+            ? this.celsiusToFahrenheit
+            : () => c;
+        return `${Math.round(modifier(c))}&deg;${this.state.temperatureType.toUpperCase()}`;
     }
 
     isOnline(lastTime, currentTime) {
-        let a = new Date(lastTime);
-        a.setMinutes(a.getMinutes() + 7);
-        const b = new Date(currentTime);
-        return a > b;
+        return moment(lastTime).add(7, 'minute')
+                .isAfter(moment(currentTime));
+    }
+    
+    handleTemperatureClick() {
+        this.setState((prevState) => {
+            return {temperatureType: prevState.temperatureType === 'f' ? 'c' : 'f'};
+        })
     }
 
     renderStatus() {
@@ -180,7 +190,9 @@ class App extends React.Component {
 
         return (
             <>
-                <span dangerouslySetInnerHTML={{__html:temperatureDisplay}} />
+                <span className="small pointer"
+                    dangerouslySetInnerHTML={{__html:temperatureDisplay}} 
+                    onClick={this.handleTemperatureClick} />
                 <span className={`badge ${onlineStyle} ml-2 p-2 text-uppercase`}>{onlineText}</span>
             </>
         )
@@ -196,7 +208,7 @@ class App extends React.Component {
             <>
                 <header className="container d-flex justify-content-between">
                     <h1 className="d-inline-block">Midnight Train</h1>
-                    <div className="align-self-center">{this.renderStatus()}</div>
+                    <div className="align-self-center text-right">{this.renderStatus()}</div>
                 </header>
                 <main className="container">
                     <IniniteScroll dataLength={days.length}
