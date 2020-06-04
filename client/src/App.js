@@ -9,6 +9,9 @@ const LAT  = 43.038902;
 const LONG = -87.906471;
 const REQUEST_LEN = 50;
 
+const UPDATE_DELAY = 1;
+const TOLERANCE = 3;
+
 class App extends React.Component {
     currentRequest=0;
     totalRecords=0;
@@ -34,7 +37,7 @@ class App extends React.Component {
                 this.fetchMoreData();
             });
         this.updateStatus();
-        setInterval(this.updateStatus, 1*(60*1000));
+        setInterval(this.updateStatus, UPDATE_DELAY*(60*1000));
     }
 
     updateStatus() {
@@ -56,7 +59,7 @@ class App extends React.Component {
             .then(response => response.json())
             .then(result => {
                 this.currentRequest++;
-                const entries = result.data.map(value => this.processEntry(value));
+                const entries = this.normalizeEntries(result.data.map(value => this.processEntry(value)));
                 const hasMore = (offset + REQUEST_LEN) < this.totalRecords;
                 this.setState(previousState => {
                     return { 
@@ -81,6 +84,30 @@ class App extends React.Component {
 
     formatTime(date) {
         return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    }
+
+    normalizeEntries(entries) {
+        // if the entry is less than 3 minutes from the previous entry + previous duration...
+        // combine them.
+        let returnValue = [];
+        entries.forEach(entry => {
+            const lastEntry = last(returnValue);
+            if (lastEntry) {
+                const inTolerance = moment(entry.date)
+                    .add(parseFloat(entry.duration)*60, 's')
+                    .add(TOLERANCE, 'm')
+                    .isAfter(moment(lastEntry.date));
+                if (inTolerance) {
+                    const newDuration = (moment(lastEntry.date)
+                        .add(parseFloat(lastEntry.duration)*60, 's')
+                        .diff(moment(entry.date)) / 1000 / 60).toFixed(2);
+                    returnValue.pop();
+                    entry.duration = newDuration;
+                }
+            }
+            returnValue.push(entry);
+        })
+        return returnValue;
     }
 
     orderTimes(times) {
@@ -171,7 +198,9 @@ class App extends React.Component {
     }
 
     isOnline(lastTime, currentTime) {
-        return moment(lastTime).add(7, 'minute')
+        if (!lastTime || !currentTime) return false;
+        
+        return moment(lastTime).add(UPDATE_DELAY, 'minute')
                 .isAfter(moment(currentTime));
     }
     
@@ -186,7 +215,7 @@ class App extends React.Component {
         const online = this.isOnline(lastUpdate, CURRENT_TIMESTAMP);
         const onlineText = online ? 'online' : 'offline';
         const onlineStyle = online ? 'badge-success' : 'badge-danger';
-        const temperatureDisplay = (online) ? this.formatDegree(temperature) : '---'
+        const temperatureDisplay = (online) ? this.formatDegree(temperature) : null;
 
         return (
             <>
