@@ -78,7 +78,7 @@ class App extends React.Component {
             date,
             day,
             time,
-            duration: ((entry.duration/1000)/60).toFixed(2),
+            duration: ((entry.duration/1000)/60)
         }
     }
 
@@ -164,10 +164,16 @@ class App extends React.Component {
     }
 
     renderEntry(entry, index) {
+        const format = value => (value < 10) ? `0${value}` : `${value}`;
+        const minutes = Math.floor(entry.duration);
+        const seconds = Math.floor(((entry.duration - minutes) * 1000) / 60);
+        const display = (minutes !== 0)
+            ? `${minutes} min ${format(seconds)} sec`
+            : `${format(seconds)} sec`;
         return (
             <li key={index} className={`list-group-item d-flex justify-content-between ${entry.timeOfDay}`}>
                 <div>{entry.time}</div>
-                <small>{entry.duration}</small>
+                <small> {display}</small>
             </li>
         );
     }
