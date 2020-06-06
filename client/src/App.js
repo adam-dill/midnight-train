@@ -10,7 +10,7 @@ const LONG = -87.906471;
 const REQUEST_LEN = 50;
 
 const UPDATE_DELAY = 1;
-const TOLERANCE = 3;
+const TOLERANCE = 5;
 
 class App extends React.Component {
     currentRequest=0;
