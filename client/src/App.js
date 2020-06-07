@@ -166,7 +166,7 @@ class App extends React.Component {
     renderEntry(entry, index) {
         const format = value => (value < 10) ? `0${value}` : `${value}`;
         const minutes = Math.floor(entry.duration);
-        const seconds = Math.floor(((entry.duration - minutes) * 1000) / 60);
+        const seconds = Math.floor(60 * (entry.duration - minutes));
         const display = (minutes !== 0)
             ? `${minutes} min ${format(seconds)} sec`
             : `${format(seconds)} sec`;
