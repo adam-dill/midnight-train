@@ -83,7 +83,7 @@ CURLcode postData(CURL *curl, time_t startTime)
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   
-  if (deltaTime < 20000)
+  if (deltaTime < 5000)
   {
     return CURLE_OK;
   }
