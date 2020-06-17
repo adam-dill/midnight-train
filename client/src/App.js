@@ -1,7 +1,6 @@
 import React from 'react';
 import last from 'lodash-es/last';
 import Suncalc from 'suncalc';
-import IniniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 
 // TODO: make values set from the POST.
@@ -55,11 +54,12 @@ class App extends React.Component {
 
     fetchMoreData() {
         const offset = REQUEST_LEN * this.currentRequest;
-        fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
+        //fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
+        fetch(`http://www.midnighttrain.adamdill.com/entries`)
             .then(response => response.json())
             .then(result => {
                 this.currentRequest++;
-                const entries = this.normalizeEntries(result.data.map(value => this.processEntry(value)));
+                const entries = result.data.map(value => this.processEntry(value));
                 const hasMore = (offset + REQUEST_LEN) < this.totalRecords;
                 this.setState(previousState => {
                     return { 
@@ -71,9 +71,9 @@ class App extends React.Component {
     }
 
     processEntry(entry) {
-        const date = new Date(entry.time.replace(/-/g, '/'));
-        const day = date.toDateString();
-        const time = this.formatTime(date);
+        const date = moment(entry.time)
+        const day = date.format("MMMM Do");
+        const time = date.format("h:mm a");
         return {
             date,
             day,
@@ -84,30 +84,6 @@ class App extends React.Component {
 
     formatTime(date) {
         return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-    }
-
-    normalizeEntries(entries) {
-        // if the entry is less than 3 minutes from the previous entry + previous duration...
-        // combine them.
-        let returnValue = [];
-        entries.forEach(entry => {
-            const lastEntry = last(returnValue);
-            if (lastEntry) {
-                const inTolerance = moment(entry.date)
-                    .add(parseFloat(entry.duration)*60, 's')
-                    .add(TOLERANCE, 'm')
-                    .isAfter(moment(lastEntry.date));
-                if (inTolerance) {
-                    const newDuration = (moment(lastEntry.date)
-                        .add(parseFloat(lastEntry.duration)*60, 's')
-                        .diff(moment(entry.date)) / 1000 / 60).toFixed(2);
-                    returnValue.pop();
-                    entry.duration = newDuration;
-                }
-            }
-            returnValue.push(entry);
-        })
-        return returnValue;
     }
 
     orderTimes(times) {
@@ -246,17 +222,7 @@ class App extends React.Component {
                     <div className="align-self-center text-right">{this.renderStatus()}</div>
                 </header>
                 <main className="container">
-                    <IniniteScroll dataLength={days.length}
-                        next={this.fetchMoreData}
-                        hasMore={this.state.hasMore}
-                        loader={this.renderLoader()}
-                        endMessage={
-                            <p className="text-center">
-                                <b>Yay! You have seen it all</b>
-                            </p>
-                        }>
-                        <ul className="list-group">{days}</ul>
-                    </IniniteScroll>
+                    <ul className="list-group">{days}</ul>
                 </main>
             </>
         );
