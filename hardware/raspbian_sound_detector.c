@@ -10,9 +10,10 @@
 #include <unistd.h>
 #include <wiringPi.h>
 
-#define sensorPin  0
-#define errorPin   1
-#define successPin 3
+#define sensorPin       0
+#define sensorDetectPin 1
+#define errorPin        2
+#define successPin      3
 
 #define MIN_DURATION 1000
 #define STATUS_FREQUENCY 60
@@ -34,10 +35,12 @@ int main(void)
   
   wiringPiSetup();	
 	pinMode(successPin, OUTPUT);
+  pinMode(sensorDetectPin, OUTPUT);
   pinMode(errorPin, OUTPUT);
 	pinMode(sensorPin, INPUT);
   
   digitalWrite(sensorPin, LOW);
+  digitalWrite(sensorDetectPin, LOW);
   digitalWrite(errorPin, LOW);
   digitalWrite(successPin, LOW);
 
@@ -52,6 +55,7 @@ int main(void)
       lastStatusUpdate = now;
     }
     int input = checkInput();
+    digitalWrite(sensorDetectPin, input);
     if (input && startTime == 0)
     {
       startTime = time(NULL);
@@ -83,7 +87,7 @@ CURLcode postData(CURL *curl, time_t startTime)
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   
-  if (deltaTime < 15000)
+  if (deltaTime < 5000)
   {
     return CURLE_OK;
   }
@@ -124,8 +128,6 @@ int checkInput(void)
   
   if (inputTime != 0 && inputTime > now)
   {
-    printf("inputTime: %ld\n", inputTime);
-    printf("now: %ld\n", now);
     digitalWrite(successPin, HIGH);
     return 1;
   }
