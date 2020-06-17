@@ -119,7 +119,7 @@ int checkInput(void)
   int input = digitalRead(sensorPin) == LOW;
   if (input)
   {
-    inputTime = now + 3;
+    inputTime = now + 1;
   }
   
   if (inputTime != 0 && inputTime > now)
