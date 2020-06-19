@@ -15,7 +15,8 @@
 #define errorPin        2
 #define successPin      3
 
-#define MIN_DURATION 1000
+#define MIN_DURATION 5000
+#define TOLERANCE 3
 #define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
@@ -87,7 +88,7 @@ CURLcode postData(CURL *curl, time_t startTime)
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   
-  if (deltaTime < 5000)
+  if (deltaTime < MIN_DURATION)
   {
     return CURLE_OK;
   }
@@ -123,7 +124,7 @@ int checkInput(void)
   int input = digitalRead(sensorPin) == LOW;
   if (input)
   {
-    inputTime = now + 1;
+    inputTime = now + TOLERANCE;
   }
   
   if (inputTime != 0 && inputTime > now)
