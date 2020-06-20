@@ -1,2 +1,2 @@
-./hardware/raspbian_sound_detector
-./hardware/raspbian_sound_detector.o
+hardware/raspbian_sound_detector
+hardware/raspbian_sound_detector.o
