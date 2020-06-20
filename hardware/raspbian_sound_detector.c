@@ -15,7 +15,7 @@
 #define errorPin        2
 #define successPin      3
 
-#define MIN_DURATION 10000
+#define MIN_DURATION 5000
 #define TOLERANCE 1
 #define STATUS_FREQUENCY 60
 
