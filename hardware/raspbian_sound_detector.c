@@ -16,7 +16,7 @@
 #define successPin      3
 
 #define MIN_DURATION 10000
-#define TOLERANCE 1
+#define TOLERANCE 3
 #define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
