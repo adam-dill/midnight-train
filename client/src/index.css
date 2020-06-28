@@ -7,9 +7,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+header {
+  position: fixed;
+  z-index: 100;
+  width: 100vw;
+  background-color: white;
+  top: 0;
+  padding: 10px 0px;
 }
 
 .loading-container>div:nth-child(1) {

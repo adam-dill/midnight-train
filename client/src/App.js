@@ -2,13 +2,15 @@ import React from 'react';
 import last from 'lodash-es/last';
 import Suncalc from 'suncalc';
 import moment from 'moment';
+import Infinite from 'react-infinite';
+import Header from './Header';
 
 // TODO: make values set from the POST.
 const LAT  = 43.038902;
 const LONG = -87.906471;
 const REQUEST_LEN = 50;
 
-const UPDATE_DELAY = 1;
+export const UPDATE_DELAY = 1;
 const TOLERANCE = 5;
 
 class App extends React.Component {
@@ -18,13 +20,10 @@ class App extends React.Component {
         super(props);
         this.state = {
             entries: [],
-            hasMore: true,
-            status: {},
-            temperatureType: 'c'
+            hasMore: true
         }
-        this.updateStatus = this.updateStatus.bind(this);
+        
         this.fetchMoreData = this.fetchMoreData.bind(this);
-        this.handleTemperatureClick = this.handleTemperatureClick.bind(this);
     }
 
     componentDidMount() {
@@ -35,31 +34,16 @@ class App extends React.Component {
                 this.totalRecords = parseInt(data);
                 this.fetchMoreData();
             });
-        this.updateStatus();
-        setInterval(this.updateStatus, UPDATE_DELAY*(60*1000));
-    }
-
-    updateStatus() {
-        fetch('http://www.midnighttrain.adamdill.com/status/')
-            .then(response => response.json())
-            .then(result => {
-                const {data} = result;
-                if (data) {
-                    const newStatus = {};
-                    data.forEach(item => newStatus[item.key] = item.value);
-                    this.setState({status: newStatus});
-                }
-            });
+        
     }
 
     fetchMoreData() {
         const offset = REQUEST_LEN * this.currentRequest;
-        //fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
-        fetch(`http://www.midnighttrain.adamdill.com/entries`)
+        fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
             .then(response => response.json())
             .then(result => {
                 this.currentRequest++;
-                const entries = result.data.map(value => this.processEntry(value));
+                const entries = this.normalizeEntries(result.data.map(value => this.processEntry(value)));
                 const hasMore = (offset + REQUEST_LEN) < this.totalRecords;
                 this.setState(previousState => {
                     return { 
@@ -80,6 +64,30 @@ class App extends React.Component {
             time,
             duration: ((entry.duration/1000)/60)
         }
+    }
+
+    normalizeEntries(entries) {
+        // if the entry is less than 3 minutes from the previous entry + previous duration...
+        // combine them.
+        let returnValue = [];
+        entries.forEach(entry => {
+            const lastEntry = last(returnValue);
+            if (lastEntry) {
+                const inTolerance = moment(entry.date)
+                    .add(parseFloat(entry.duration)*60, 's')
+                    .add(TOLERANCE, 'm')
+                    .isAfter(moment(lastEntry.date));
+                if (inTolerance) {
+                    const newDuration = (moment(lastEntry.date)
+                        .add(parseFloat(lastEntry.duration)*60, 's')
+                        .diff(moment(entry.date)) / 1000 / 60).toFixed(2);
+                    returnValue.pop();
+                    entry.duration = newDuration;
+                }
+            }
+            returnValue.push(entry);
+        })
+        return returnValue;
     }
 
     formatTime(date) {
@@ -166,49 +174,6 @@ class App extends React.Component {
         )
     }
 
-    celsiusToFahrenheit(c) {
-        return (c * 9/5) + 32;
-    }
-
-    formatDegree(c) {
-        if (!c) return null;
-
-        const modifier = this.state.temperatureType === 'f'
-            ? this.celsiusToFahrenheit
-            : () => c;
-        return `${Math.round(modifier(c))}&deg;${this.state.temperatureType.toUpperCase()}`;
-    }
-
-    isOnline(lastTime, currentTime) {
-        if (!lastTime || !currentTime) return false;
-        
-        return moment(lastTime).add(UPDATE_DELAY, 'minute')
-                .isAfter(moment(currentTime));
-    }
-    
-    handleTemperatureClick() {
-        this.setState((prevState) => {
-            return {temperatureType: prevState.temperatureType === 'f' ? 'c' : 'f'};
-        })
-    }
-
-    renderStatus() {
-        const {temperature, lastUpdate, CURRENT_TIMESTAMP} = this.state.status;
-        const online = this.isOnline(lastUpdate, CURRENT_TIMESTAMP);
-        const onlineText = online ? 'online' : 'offline';
-        const onlineStyle = online ? 'badge-success' : 'badge-danger';
-        const temperatureDisplay = (online) ? this.formatDegree(temperature) : null;
-
-        return (
-            <>
-                <span className="small pointer"
-                    dangerouslySetInnerHTML={{__html:temperatureDisplay}} 
-                    onClick={this.handleTemperatureClick} />
-                <span className={`badge ${onlineStyle} ml-2 p-2 text-uppercase`}>{onlineText}</span>
-            </>
-        )
-    }
-
     render() {
         const dayData = this.splitDays(this.state.entries);
         const days = dayData.map((day, index) => {
@@ -217,12 +182,12 @@ class App extends React.Component {
         
         return (
             <>
-                <header className="container d-flex justify-content-between">
-                    <h1 className="d-inline-block">Midnight Train</h1>
-                    <div className="align-self-center text-right">{this.renderStatus()}</div>
-                </header>
+                <Header title="Midnight Train" />
                 <main className="container">
-                    <ul className="list-group">{days}</ul>
+                    <ul className="list-group mt-5 pt-5">{days}</ul>
+                    <div className="d-flex justify-content-center mb-5">
+                        <button className="btn btn-primary" onClick={this.fetchMoreData}>Load More</button>
+                    </div>
                 </main>
             </>
         );
