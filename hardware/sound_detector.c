@@ -12,7 +12,7 @@
 
 #define sensorPin       0
 
-#define MIN_DURATION 10000
+#define MIN_DURATION 60000
 #define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
@@ -51,7 +51,7 @@ int main(void)
     }
     else if (!input && startTime > 0)
     {
-      printf("\nsound ended.\n");
+      printf("sound ended.\n");
       curl = curl_easy_init();
       if (curl)
       {
@@ -75,7 +75,7 @@ CURLcode postData(CURL *curl, time_t startTime)
 {
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
-  
+  printf("deltaTime: %d\n", deltaTime);
   if (deltaTime < MIN_DURATION)
   {
     return CURLE_OK;
