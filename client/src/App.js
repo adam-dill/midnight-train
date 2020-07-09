@@ -2,7 +2,6 @@ import React from 'react';
 import last from 'lodash-es/last';
 import Suncalc from 'suncalc';
 import moment from 'moment';
-import Infinite from 'react-infinite';
 import Header from './Header';
 
 // TODO: make values set from the POST.
@@ -56,7 +55,7 @@ class App extends React.Component {
 
     processEntry(entry) {
         const date = moment(entry.time)
-        const day = date.format("MMMM Do");
+        const day = date.format("ddd, MMMM Do");
         const time = date.format("h:mm a");
         return {
             date,
