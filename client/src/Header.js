@@ -48,7 +48,7 @@ class Header extends React.Component {
         if (!lastTime || !currentTime) return false;
         
         return moment(lastTime).add(UPDATE_DELAY, 'minute')
-                .isAfter(moment(currentTime));
+                .isAfter(moment(currentTime).subtract(5, 's'));
     }
     
     handleTemperatureClick() {

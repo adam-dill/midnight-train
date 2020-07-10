@@ -137,18 +137,6 @@ class App extends React.Component {
         );
     }
 
-    renderLoader() {
-        return (
-            <div className="d-flex justify-content-center loading-container">
-                <div className="spinner-grow text-info text-center mx-4" role="status"></div>
-                <div className="spinner-grow text-info text-center mx-4" role="status">
-                    <span className="sr-only">Loading...</span>
-                </div>
-                <div className="spinner-grow text-info text-center mx-4" role="status"></div>
-            </div>   
-        )
-    }
-
     render() {
         const dayData = this.splitDays(this.state.entries);
         const days = dayData.map((day, index) => {
