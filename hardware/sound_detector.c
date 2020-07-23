@@ -12,8 +12,12 @@
 
 #define sensorPin       0
 
+<<<<<<< Updated upstream
 #define MIN_DURATION 3000
 #define MAX_DURATION 900000
+=======
+#define MIN_DURATION 60000
+>>>>>>> Stashed changes
 #define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
@@ -77,7 +81,7 @@ CURLcode postData(CURL *curl, time_t startTime)
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   printf("deltaTime: %d\n", deltaTime);
-  if (deltaTime < MIN_DURATION || deltaTime > MAX_DURATION)
+  if (deltaTime < MIN_DURATION)
   {
     return CURLE_OK;
   }
