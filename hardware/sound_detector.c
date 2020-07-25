@@ -12,12 +12,8 @@
 
 #define sensorPin       0
 
-<<<<<<< Updated upstream
-#define MIN_DURATION 3000
+#define MIN_DURATION 30000
 #define MAX_DURATION 900000
-=======
-#define MIN_DURATION 60000
->>>>>>> Stashed changes
 #define STATUS_FREQUENCY 60
 
 CURLcode postData(CURL *curl, time_t startTime);
