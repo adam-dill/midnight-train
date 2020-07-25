@@ -12,11 +12,11 @@
 
 #define sensorPin       0
 
-#define MIN_DURATION 30000
+#define MIN_DURATION 3000
 #define MAX_DURATION 900000
 #define STATUS_FREQUENCY 60
 
-CURLcode postData(CURL *curl, time_t startTime);
+void postData(CURL *curl, time_t startTime);
 void createPostData(char *postData, time_t time, int duration);
 int checkInput(void);
 void postStatus(void);
@@ -28,7 +28,6 @@ time_t lastStatusUpdate = 0;
 int main(void)
 {
   CURL *curl;
-  CURLcode res;
   time_t startTime = 0;
   
   wiringPiSetup();	
@@ -43,7 +42,7 @@ int main(void)
       postStatus();
       lastStatusUpdate = now;
     }
-    int input = digitalRead(sensorPin) == HIGH;
+    int input = !(digitalRead(sensorPin) == HIGH);
     //printf("input: %d\n", input);
     if (input && startTime == 0)
     {
@@ -56,14 +55,7 @@ int main(void)
       curl = curl_easy_init();
       if (curl)
       {
-        res = postData(curl, startTime);
-        if(res != CURLE_OK)
-        {
-          fprintf(stderr, "\ncurl_easy_perform() failed: %s\n",
-                  curl_easy_strerror(res));
-        }
-
-        curl_easy_cleanup(curl);
+        postData(curl, startTime);
       }
       startTime = 0;
     }
@@ -72,14 +64,14 @@ int main(void)
   return 0;
 }
 
-CURLcode postData(CURL *curl, time_t startTime)
+void postData(CURL *curl, time_t startTime)
 {
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   printf("deltaTime: %d\n", deltaTime);
   if (deltaTime < MIN_DURATION)
   {
-    return CURLE_OK;
+    return;
   }
   char postData[256];
   createPostData(postData, startTime, deltaTime);
@@ -87,8 +79,17 @@ CURLcode postData(CURL *curl, time_t startTime)
   curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/entries/add");
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
+  
+  CURLcode res = curl_easy_perform(curl);
+  
+  if(res != CURLE_OK)
+  {
+    FILE *out = fopen("posterror", "a");
+    fprintf(out, strcat(postData, "\n"));
+    fclose(out);
+  }
 
-  return curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
 }
 
 void createPostData(char *postData, time_t time, int duration)
