@@ -42,7 +42,7 @@ int main(void)
       postStatus();
       lastStatusUpdate = now;
     }
-    int input = !(digitalRead(sensorPin) == HIGH);
+    int input = (digitalRead(sensorPin) == HIGH;
     //printf("input: %d\n", input);
     if (input && startTime == 0)
     {
