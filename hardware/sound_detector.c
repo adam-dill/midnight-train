@@ -10,9 +10,9 @@
 #include <unistd.h>
 #include <wiringPi.h>
 
-#define sensorPin       0
+#define sensorPin  0
 
-#define MIN_DURATION 30000
+#define MIN_DURATION 5000
 #define MAX_DURATION 900000
 #define STATUS_FREQUENCY 60
 
