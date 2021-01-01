@@ -2,3 +2,4 @@ hardware/raspbian_sound_detector
 hardware/raspbian_sound_detector.o
 hardware/sound_detector
 hardware/sound_detector.o
+hardware/__pycache__

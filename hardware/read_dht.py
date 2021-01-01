@@ -13,22 +13,22 @@ import sys
 import pigpio
 import DHT
 import time
-import datetime
+from datetime import datetime
 import requests
+import json
 
 # Sensor should be set to DHT.DHT11, DHT.DHTXX or DHT.DHTAUTO
 sensor = DHT.DHT11
 
 pin = 4     # Data - Pin 7 (BCM 4)
-API_ENDPOINT = "http://pastebin.com/api/api_post.php"
-
+API_ENDPOINT = "http://midnighttrain.adamdill.com/status/dht"
 def output_data(timestamp, temperature, humidity):
     # Sample output Date: 2019-11-17T10:55:08, Temperature: 25°C, Humidity: 72%
-    date = datetime.datetime.fromtimestamp(timestamp).replace(microsecond=0).isoformat()
-    data = {'timestamp': timestamp,
-            'temperature': temperature
-            'humidity': humidity}
-    requests.post(url = API_ENDPOINT, data = data)
+    date = datetime.fromtimestamp(timestamp).replace(microsecond=0).isoformat()
+    data = {"timestamp": timestamp,
+            "temperature": temperature,
+            "humidity": humidity}
+    requests.post(url = API_ENDPOINT, json = json.dumps(data))
     print(u"Date: {:s}, Temperature: {:g}\u00b0C, Humidity: {:g}%".format(date, temperature, humidity))
 
 pi = pigpio.pi()
@@ -38,10 +38,11 @@ if not pi.connected:
 
 s = DHT.sensor(pi, pin, model = sensor)
 
-tries = 5   # try 5 times if error
+tries = 25   # try 25 times if error
 while tries:
     try:
         timestamp, gpio, status, temperature, humidity = s.read()   #read DHT device
+        print("attempting: ", status)
         if(status == DHT.DHT_TIMEOUT):  # no response from sensor
             print("no response from sensor")
             exit()
