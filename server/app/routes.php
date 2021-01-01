@@ -6,6 +6,7 @@ use App\Application\Actions\Entry\GetNumOfEntryAction;
 use App\Application\Actions\Entry\ViewLimitedEntryAction;
 use App\Application\Actions\Entry\PostEntryAction;
 use App\Application\Actions\Entry\PostTemperatureAction;
+use App\Application\Actions\Entry\PostDHTAction;
 use App\Application\Actions\Entry\ViewStatusAction;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -33,5 +34,6 @@ return function (App $app) {
     $app->group('/status', function (Group $group) {
         $group->get('/', ViewStatusAction::class);
         $group->post('/temperature', PostTemperatureAction::class);
+        $group->post('/dht', PostDHTAction::class);
     });
 };

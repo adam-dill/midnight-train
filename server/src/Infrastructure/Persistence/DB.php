@@ -54,6 +54,14 @@ class DB
         $stmt->execute();
     }
 
+    public function postDHT($data) {
+        // The data can be set outside of the C application
+        $query = "UPDATE `status` SET `value`=:dht WHERE `key`='dht'";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':dht', $data);
+        $stmt->execute();
+    }
+
     public function getStatus() {
         $query = 'SELECT * FROM `status`';
         $stm = $this->pdo->prepare($query);
