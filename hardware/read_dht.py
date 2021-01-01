@@ -25,7 +25,7 @@ API_ENDPOINT = "http://midnighttrain.adamdill.com/status/dht"
 def output_data(timestamp, temperature, humidity):
     # Sample output Date: 2019-11-17T10:55:08, Temperature: 25°C, Humidity: 72%
     date = datetime.fromtimestamp(timestamp).replace(microsecond=0).isoformat()
-    data = {"timestamp": timestamp,
+    data = {"timestamp": date,
             "temperature": temperature,
             "humidity": humidity}
     requests.post(url = API_ENDPOINT, json = json.dumps(data))
