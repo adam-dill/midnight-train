@@ -38,7 +38,7 @@ if not pi.connected:
 
 s = DHT.sensor(pi, pin, model = sensor)
 
-tries = 25   # try 25 times if error
+tries = 1000   # try 1000 times if error
 while tries:
     try:
         timestamp, gpio, status, temperature, humidity = s.read()   #read DHT device
