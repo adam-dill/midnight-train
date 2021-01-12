@@ -43,12 +43,12 @@ while tries:
     try:
         timestamp, gpio, status, temperature, humidity = s.read()   #read DHT device
         print("attempting: ", status)
-        if(status == DHT.DHT_TIMEOUT):  # no response from sensor
-            print("no response from sensor")
-            exit()
         if(status == DHT.DHT_GOOD):
             output_data(timestamp, temperature, humidity)
             exit()      # Exit after successful read
+        if(status == DHT.DHT_TIMEOUT):  # no response from sensor
+            print("no response from sensor")
+            #exit()
         time.sleep(2)
         tries -=1
     except KeyboardInterrupt:
