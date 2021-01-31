@@ -12,7 +12,7 @@
 
 #define sensorPin       0
 
-#define MIN_DURATION 30000
+#define MIN_DURATION 10000
 #define MAX_DURATION 900000
 #define STATUS_FREQUENCY 60
 
