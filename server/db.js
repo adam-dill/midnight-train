@@ -1,13 +1,17 @@
 var mysql = require('mysql');
 const dbconfig = require('./dbconfig');
 const get = require('lodash/get');
+const fs = require('fs');
 
 const query = (sql, res) => {
     var connection = mysql.createConnection(dbconfig);
     connection.connect()
 
     connection.query(sql, function (err, rows, fields) {
-        if (err) throw err
+        if (err) {
+            fs.appendFileSync('log.txt', `ERROR: ${err}\n`);
+            throw err
+        }
         const data = {
             statusCode: 200,
             data: rows
@@ -23,7 +27,10 @@ const queryStatus = (res) => {
     connection.connect()
 
     connection.query('SELECT * FROM `status`;', function (err, results, fields) {
-        if (err) throw err
+        if (err) {
+            fs.appendFileSync('log.txt', `ERROR: ${err}\n`);
+            throw err
+        }
         const date = new Date();
         const dateResponse = {
             key: "CURRENT_TIMESTAMP",
@@ -45,7 +52,10 @@ const queryCount = (res) => {
     connection.connect()
 
     connection.query(`SELECT COUNT(*) FROM entries`, function (err, rows, fields) {
-        if (err) throw err
+        if (err) {
+            fs.appendFileSync('log.txt', `ERROR: ${err}\n`);
+            throw err
+        }
         const data = {
             statusCode: 200,
             data: get(rows, '0.COUNT(*)', 0)
@@ -61,7 +71,10 @@ const setLastUpdateTime = () => {
     connection.connect();
     const date = new Date();
     connection.query(`UPDATE \`status\` SET \`value\`="${date.toString()}" WHERE \`key\`='lastUpdate'`, function (err, rows, fields) {
-        if (err) throw err
+        if (err) {
+            fs.appendFileSync('log.txt', `ERROR: ${err}\n`);
+            throw err
+        }
     });
     connection.end()
 }

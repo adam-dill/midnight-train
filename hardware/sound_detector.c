@@ -66,6 +66,9 @@ int main(void)
 
 void postData(CURL *curl, time_t startTime)
 {
+  struct curl_slist *chunk = NULL;
+  chunk = curl_slist_append(chunk, "Content-Type: application/json");
+
   time_t newTime = time(NULL);
   int deltaTime = difftime(newTime, startTime) * 1000;
   printf("deltaTime: %d\n", deltaTime);
@@ -80,6 +83,7 @@ void postData(CURL *curl, time_t startTime)
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
   
+  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
   CURLcode res = curl_easy_perform(curl);
   
   if(res != CURLE_OK)
@@ -112,6 +116,8 @@ void postStatus()
   printf("posting status.\n");
   CURL *curl;
   curl = curl_easy_init();
+  struct curl_slist *chunk = NULL;
+  chunk = curl_slist_append(chunk, "Content-Type: application/json");
   if (curl)
   {
     double temperature = getCpuTemperature();
@@ -125,6 +131,8 @@ void postStatus()
     curl_easy_setopt(curl, CURLOPT_URL, "http://midnighttrain.adamdill.com/status/temperature");
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
     curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(postData));
+
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
     curl_easy_perform(curl);
     curl_easy_cleanup(curl);
   }
