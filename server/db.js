@@ -34,7 +34,7 @@ const queryStatus = (res) => {
             statusCode: 200,
             data: results
         }
-        res.json(results);
+        res.json(data);
     });
 
     connection.end()
