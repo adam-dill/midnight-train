@@ -1,16 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const nocache = require('nocache');
 const get = require('lodash/get');
 const {query, queryStatus, queryCount, setLastUpdateTime} = require('./db');
 const app = express();
 const port = 3000;
 
-const fs = require('fs');
 
-app.use((req, res, next) => {
-    res.append('Cache-Control', 'no-cache');
-    next();
-});
+app.use(nocache());
 
 app.get('/entries/count', (req, res) => {
     queryCount(res);
@@ -45,9 +42,8 @@ app.get('/status', (req, res) => {
 });
 
 app.post('/status/temperature', jsonParser, (req, res) => {
-    fs.appendFileSync('log.txt', `req.body: ${JSON.stringify(req.body)}\n`);
     setLastUpdateTime();
-    query(`UPDATE \`status\` SET \`value\`=${JSON.stringify(req.body)} WHERE \`key\`='temperature'`, res);
+    query(`UPDATE \`status\` SET \`value\`=${req.body.temperature} WHERE \`key\`='temperature'`, res);
 });
 
 app.post('/status/dht', jsonParser, (req, res) => {
