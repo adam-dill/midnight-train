@@ -19,7 +19,7 @@ class Header extends React.Component {
     }
 
     updateStatus() {
-        fetch('http://www.midnighttrain.adamdill.com/status/')
+        fetch('http://midnighttrain.adamdill.com/status/')
             .then(response => response.json())
             .then(result => {
                 const {data} = result;
@@ -47,6 +47,8 @@ class Header extends React.Component {
     isOnline(lastTime, currentTime) {
         if (!lastTime || !currentTime) return false;
         
+        const last = moment(lastTime).add(UPDATE_DELAY, 'minute').format();
+        const current = moment(currentTime).subtract(5, 's').format();
         return moment(lastTime).add(UPDATE_DELAY, 'minute')
                 .isAfter(moment(currentTime).subtract(5, 's'));
     }

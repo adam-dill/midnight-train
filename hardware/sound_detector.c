@@ -109,6 +109,7 @@ void createPostData(char *postData, time_t time, int duration)
 
 void postStatus()
 {
+  printf("posting status.\n");
   CURL *curl;
   curl = curl_easy_init();
   if (curl)

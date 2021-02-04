@@ -28,7 +28,7 @@ def output_data(timestamp, temperature, humidity):
     data = {"timestamp": date,
             "temperature": temperature,
             "humidity": humidity}
-    requests.post(url = API_ENDPOINT, json = json.dumps(data))
+    requests.post(url = API_ENDPOINT, json = data)
     print(u"Date: {:s}, Temperature: {:g}\u00b0C, Humidity: {:g}%".format(date, temperature, humidity))
 
 pi = pigpio.pi()

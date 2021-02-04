@@ -10,7 +10,6 @@ const LONG = -87.906471;
 const REQUEST_LEN = 50;
 
 export const UPDATE_DELAY = 1;
-const TOLERANCE = 5;
 
 class App extends React.Component {
     currentRequest=0;
@@ -26,7 +25,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        fetch('http://www.midnighttrain.adamdill.com/entries/count')
+        fetch('http://midnighttrain.adamdill.com/entries/count')
             .then(response => response.json())
             .then(result => {
                 const {data} = result;
@@ -38,7 +37,7 @@ class App extends React.Component {
 
     fetchMoreData() {
         const offset = REQUEST_LEN * this.currentRequest;
-        fetch(`http://www.midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
+        fetch(`http://midnighttrain.adamdill.com/entries/${offset}/${REQUEST_LEN}`)
             .then(response => response.json())
             .then(result => {
                 this.currentRequest++;
