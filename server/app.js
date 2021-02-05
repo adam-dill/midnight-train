@@ -13,21 +13,29 @@ app.get('/entries/count', (req, res) => {
     queryCount(res);
 });
 
+const getLimit = (req) => {
+    return {
+        offset: get(req.params, 'offset', '0'),
+        limit: get(req.params, 'limit', `${Number.MAX_SAFE_INTEGER}`)
+    }
+}
+
 app.get('/entries', (req, res) => {
-    const offset = '0';
-    const limit = `${Number.MAX_SAFE_INTEGER}`;
+    const {offset, limit} = getLimit(req);
     query(`SELECT * FROM entries ORDER BY time DESC LIMIT ${offset}, ${limit};`, res);
 });
 
+app.get('/entries/today', (req, res) => {
+    query(`SELECT * from entries where DATE(CURRENT_DATE - INTERVAL 12 HOUR) < DATE(time);`, res);
+})
+
 app.get('/entries/:offset', (req, res) => {
-    const offset = get(req.params, 'offset', '0');
-    const limit = `${Number.MAX_SAFE_INTEGER}`;
+    const {offset, limit} = getLimit(req);
     query(`SELECT * FROM entries ORDER BY time DESC LIMIT ${offset}, ${limit};`, res);
 });
 
 app.get('/entries/:offset/:limit', (req, res) => {
-    const offset = get(req.params, 'offset', '0');
-    const limit = get(req.params, 'limit', `${Number.MAX_SAFE_INTEGER}`);
+    const {offset, limit} = getLimit(req);
     query(`SELECT * FROM entries ORDER BY time DESC LIMIT ${offset}, ${limit};`, res);
 });
 
