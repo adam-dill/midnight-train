@@ -34,7 +34,7 @@ app.get('/entries/:offset/:limit', (req, res) => {
 var jsonParser = bodyParser.json({ type: 'application/json' } );
 
 app.post('/entries/add', jsonParser, (req, res) => {
-    query(`INSERT INTO entries (time, duration) VALUES (${req.body.time}, ${req.body.duration})`, res);
+    query(`INSERT INTO entries (time, duration) VALUES ('${req.body.time}', '${req.body.duration}')`, res);
 });
 
 app.get('/status', (req, res) => {
@@ -47,6 +47,8 @@ app.post('/status/temperature', jsonParser, (req, res) => {
 });
 
 app.post('/status/dht', jsonParser, (req, res) => {
+    const date = new Date();
+    req.body.timestamp = date.toString();
     query(`UPDATE \`status\` SET \`value\`='${JSON.stringify(req.body)}' WHERE \`key\`='dht'`, res);
 });
 

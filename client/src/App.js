@@ -53,7 +53,7 @@ class App extends React.Component {
     }
 
     processEntry(entry) {
-        const date = moment(entry.time).utcOffset(4);
+        const date = moment(entry.time).utcOffset(-8);
         const day = date.format("ddd, MMMM Do");
         const time = date.format("h:mm a");
         return {
