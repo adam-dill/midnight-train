@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const nocache = require('nocache');
 const get = require('lodash/get');
-const {query, queryStatus, queryCount, setLastUpdateTime} = require('./db');
+const {query, queryStatus, queryCount, setLastUpdateTime, queryToday} = require('./db');
 const app = express();
 const port = 3000;
 
@@ -26,7 +26,7 @@ app.get('/entries', (req, res) => {
 });
 
 app.get('/entries/today', (req, res) => {
-    query(`SELECT * from entries where DATE(CURRENT_DATE - INTERVAL 12 HOUR) < DATE(time);`, res);
+    queryToday(`SELECT * from entries where DATE(CURRENT_DATE - INTERVAL 12 HOUR) < DATE(time);`, res);
 })
 
 app.get('/entries/:offset', (req, res) => {

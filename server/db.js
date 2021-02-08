@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 const dbconfig = require('./dbconfig');
 const get = require('lodash/get');
+const moment = require('moment');
 const fs = require('fs');
 
 const query = (sql, res) => {
@@ -15,6 +16,42 @@ const query = (sql, res) => {
         const data = {
             statusCode: 200,
             data: rows
+        }
+        res.json(data);
+    });
+
+    connection.end()
+}
+
+const queryToday = (sql, res) => {
+    var connection = mysql.createConnection(dbconfig);
+    connection.connect()
+
+    connection.query(sql, function (err, rows, fields) {
+        if (err) {
+            fs.appendFileSync('log.txt', `ERROR: ${err}\n`);
+            throw err
+        }
+        let final = [];
+        rows.forEach(value => {
+            if (final.length === 0) {
+                final.push(value);
+                return;
+            }
+            const lastEntry = final[final.length - 1];
+            const end = moment(lastEntry.time).add(lastEntry.duration, 'ms');
+            const tolerance = end.add(5, 'm');
+            if (moment(value.time).isBefore(tolerance)) {
+                const newEnd = moment(value.time).add(value.duration, 'ms');
+                const newDuration = newEnd.diff(moment(lastEntry.time));
+                lastEntry.duration = newDuration;
+            } else {
+                final.push(value);
+            }
+        });
+        const data = {
+            statusCode: 200,
+            data: final.reverse()
         }
         res.json(data);
     });
@@ -81,6 +118,7 @@ const setLastUpdateTime = () => {
 
 module.exports = {
     query,
+    queryToday,
     queryStatus,
     queryCount,
     setLastUpdateTime
