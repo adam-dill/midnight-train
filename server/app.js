@@ -26,7 +26,7 @@ app.get('/entries', (req, res) => {
 });
 
 app.get('/entries/today', (req, res) => {
-    queryToday(`SELECT * from entries where DATE(CURRENT_DATE - INTERVAL 12 HOUR) < DATE(time);`, res);
+    queryToday(`SELECT * from entries where time >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 12 HOUR);`, res);
 })
 
 app.get('/entries/:offset', (req, res) => {
