@@ -6,8 +6,10 @@ const fs = require('fs');
 
 const query = (sql, res) => {
     var connection = mysql.createConnection(dbconfig);
-    connection.connect()
-
+    connection.connect();
+    const date = new Date();
+    fs.appendFileSync('log.txt', `${date.toString()} ::: ${sql}\n`);
+    
     connection.query(sql, function (err, rows, fields) {
         if (err) {
             fs.appendFileSync('log.txt', `ERROR: ${err}\n`);

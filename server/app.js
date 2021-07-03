@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 const nocache = require('nocache');
 const get = require('lodash/get');
@@ -8,6 +9,7 @@ const port = 3000;
 
 
 app.use(nocache());
+fs.ensureFileSync('log.txt');
 
 app.get('/entries/count', (req, res) => {
     queryCount(res);
